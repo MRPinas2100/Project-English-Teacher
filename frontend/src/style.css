@@ -1,4 +1,22 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+:root {
+  --color-brand: #131920;
+  --color-bubble-user: #3073e7;
+  --color-bubble-ai: #303a4c;
+  --color-text: #ffffff;
+  --color-online: #3ebc6b;
+  --color-icon: #96a4bb;
+}
+
+@theme {
+  --color-brand: var(--color-brand);
+  --color-bubble-user: var(--color-bubble-user);
+  --color-bubble-ai: var(--color-bubble-ai);
+  --color-text: var(--color-text);
+  --color-online: var(--color-online);
+  --color-icon: var(--color-icon);
+}
 
 body {
   width: 100%;
