@@ -1,13 +1,14 @@
 <template>
-  <header class="bg-transparent backdrop-blur">
+  <header class="bg-transparent backdrop-blur border-b border-white/20 rounded-lg">
     <div class="flex gap-6 mx-auto max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg p-4">
-      <picture class="block w-12 h-12 rounded-full overflow-hidden border border-icon">
+      <picture
+        class="flex items-center justify-center w-12 h-12 rounded-full overflow-hidden border border-icon"
+      >
         <source srcset="/matilda.webp" type="image/webp" />
-        <!-- Fallback -->
         <img
           src="/matilda.png"
           alt="Matilda avatar"
-          class="w-full h-full object-cover"
+          class="w-full h-full object-contain bg-brand/30"
           loading="lazy"
           decoding="async"
         />

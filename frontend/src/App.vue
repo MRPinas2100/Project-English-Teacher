@@ -1,25 +1,15 @@
 <template>
-  <main class="min-h-dvh w-full p-4 bg-brand text-gray-900 flex flex-col">
-    <MainHeader />
-    <div class="flex-1">
-      <!-- aquí irá el contenido -->
+  <main class="flex min-h-dvh w-full p-4 bg-brand justify-center">
+    <div class="flex w-full h-auto lg:max-w-260 flex-1 flex-col bg-transparent gap-3">
+      <MainHeader />
+      <ChatContainer />
+      <MainFooter />
     </div>
-    <MainFooter />
   </main>
 </template>
 
 <script setup>
 import MainHeader from './components/MainHeader.vue'
 import MainFooter from './components/MainFooter.vue'
-import { onMounted } from 'vue'
-import { askLLM } from './lib/aiClient'
-
-onMounted(async () => {
-  try {
-    const reply = await askLLM('Hi, what is your name?')
-    console.warn('🧠 Respuesta del modelo:', reply)
-  } catch (err) {
-    console.error('❌ Error consultando el modelo:', err)
-  }
-})
+import ChatContainer from './components/ChatContainer.vue'
 </script>
