@@ -1,8 +1,6 @@
 <template>
-  <section v-if="message || message == null" class="w-full h-auto">
-    <div
-      :class="['flex gap-2 w-full md:max-w-150 p-2', is_IA_Sender ? 'items-start' : 'items-end']"
-    >
+  <section v-if="message || message == null" class="flex flex-col w-full h-auto justify-end">
+    <div :class="['flex gap-2 w-full md:max-w-150 p-2', is_IA_Sender ? 'items-start' : 'self-end']">
       <picture
         v-if="is_IA_Sender"
         class="relative self-end shrink-0 size-10 rounded-full overflow-hidden border border-icon"
@@ -19,8 +17,8 @@
       <div class="flex flex-col flex-1 min-w-0 gap-1">
         <div
           :class="[
-            'inline-block bg-bubble-ai text-text px-3 py-2 rounded-tl-xl rounded-tr-xl wrap-break-word font-medium',
-            is_IA_Sender ? 'rounded-br-xl' : 'rounded-bl-xl'
+            'inline-block text-text px-3 py-2 rounded-tl-xl rounded-tr-xl wrap-break-word font-medium',
+            is_IA_Sender ? 'rounded-br-xl bg-bubble-ai' : 'rounded-bl-xl bg-bubble-user'
           ]"
         >
           <p>
@@ -71,6 +69,6 @@ const props = defineProps({
 })
 
 const { message } = props
-const { id, sender, text, status, time } = message
+const { sender, text, time } = message
 const is_IA_Sender = sender === agentType.IA
 </script>
