@@ -1,6 +1,7 @@
 <template>
-  <form class="w-full h-17 border-t border-white/20 rounded-lg flex items-center p-2 gap-2">
+  <form class="w-full h-full flex items-center gap-2" @submit.prevent="sendMessage">
     <input
+      v-model="userMessage"
       class="flex-1 h-full text-text outline-none p-4 bg-input rounded-full text-lg font-medium"
       type="text"
       placeholder="Type new message ..."
@@ -13,7 +14,7 @@
     </button>
     <button
       class="flex items-center justify-center rounded-full size-10 bg-bubble-user cursor-pointer"
-      type="button"
+      type="submit"
     >
       <SendIcon class="w-6 h-6 text-text" />
     </button>
@@ -21,6 +22,16 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import MicIcon from './icons/MicIcon.vue'
 import SendIcon from './icons/SendIcon.vue'
+
+const userMessage = ref('')
+const emit = defineEmits(['send'])
+
+const sendMessage = () => {
+  if (!userMessage.value.trim()) return
+  emit('send', userMessage.value)
+  userMessage.value = ''
+}
 </script>
