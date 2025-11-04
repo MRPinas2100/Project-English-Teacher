@@ -40,7 +40,7 @@
         <source srcset="/liney.webp" type="image/webp" />
         <img
           src="/liney.png"
-          alt="Matilda avatar"
+          alt="user avatar"
           class="w-full h-full object-contain bg-brand/30 absolute"
           loading="lazy"
           decoding="async"
