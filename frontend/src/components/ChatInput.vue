@@ -65,7 +65,6 @@ const startRecording = async () => {
       return
     }
 
-    // Pide micrófono (puedes ajustar flags de audio)
     mediaStream.value = await navigator.mediaDevices.getUserMedia({
       audio: {
         channelCount: 1,
@@ -79,27 +78,21 @@ const startRecording = async () => {
     chunks = []
 
     mediaRecorder.ondataavailable = (e) => {
+      console.log(e.data)
       if (e.data && e.data.size > 0) chunks.push(e.data)
     }
 
     mediaRecorder.onstop = () => {
-      // construye el Blob final con el tipo elegido (o el que reporte el recorder)
       const mime = mediaRecorder?.mimeType || 'audio/webm'
       const blob = new Blob(chunks, { type: mime })
-      console.log('🎙️ Audio capturado:', blob, 'tamaño:', blob.size)
-
-      const audioURL = URL.createObjectURL(blob)
-      const audio = new Audio(audioURL)
-      audio.play() // 🎧 Reproducción inmediata
-
       emit('audio', blob)
     }
 
-    mediaRecorder.start() // puedes pasar timeslice (ms) si quieres ondataavailable por intervalos
+    mediaRecorder.start()
     isRecording.value = true
   } catch (err) {
     console.error('No se pudo iniciar la grabación:', err)
-    stopRecording() // limpieza defensiva
+    stopRecording()
   }
 }
 
@@ -108,9 +101,7 @@ const stopRecording = () => {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop()
     }
-  } catch (e) {
-    // ignora errores al parar si ya está inactivo
-  }
+  } catch (e) {}
 
   if (mediaStream.value) {
     mediaStream.value.getTracks().forEach((t) => t.stop())

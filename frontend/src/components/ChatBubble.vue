@@ -25,7 +25,7 @@
             {{ text }}
           </p>
 
-          <ChatAudioBubble v-else />
+          <ChatAudioBubble v-else :message="message" />
         </div>
         <span
           :class="[
