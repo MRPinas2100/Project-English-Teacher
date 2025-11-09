@@ -11,7 +11,7 @@
     <div
       class="w-full h-17 bg-brand border-t border-white/20 rounded-lg flex items-center p-2 gap-2 sticky bottom-0"
     >
-      <ChatInput @send="handleSend" />
+      <ChatInput @text="handleText" @audio="handleAudio" />
     </div>
     <div ref="pageSentinel" aria-hidden="true" class="h-0 w-full"></div>
   </section>
@@ -25,6 +25,7 @@ import { ref, watch, onMounted, nextTick } from 'vue'
 import { askLLM } from '../lib/aiClient'
 import { agentType } from '../consts/agentConsts'
 import { messagesFactory } from '../lib/messages'
+import { messageType } from '../consts/messageType'
 
 const messages = ref([])
 const pageSentinel = ref(null)
@@ -47,11 +48,15 @@ watch(
   }
 )
 
-const handleSend = async (message) => {
-  messages.value.push(messagesFactory({ text: message, agent: agentType.USER }))
+const handleText = async (message) => {
+  messages.value.push(
+    messagesFactory({ type: messageType.TEXT, text: message, agent: agentType.USER })
+  )
   try {
     const answer = await askLLM(message)
-    messages.value.push(messagesFactory({ text: answer, agent: agentType.IA }))
+    messages.value.push(
+      messagesFactory({ type: messageType.TEXT, text: answer, agent: agentType.IA })
+    )
   } catch {
     messages.value.push(
       messagesFactory({
@@ -62,12 +67,20 @@ const handleSend = async (message) => {
   }
 }
 
+const handleAudio = (blob) => {
+  messages.value.push(messagesFactory({ agent: agentType.USER, type: messageType.AUDIO, blob }))
+}
+
 onMounted(async () => {
   try {
     const first = await askLLM('Hi, what is your name?')
-    messages.value.push(messagesFactory({ text: first, agent: agentType.IA }))
+    messages.value.push(
+      messagesFactory({ type: messageType.TEXT, text: first, agent: agentType.IA })
+    )
   } catch {
-    messages.value.push(messagesFactory({ text: 'there was an error', agent: agentType.IA }))
+    messages.value.push(
+      messagesFactory({ type: messageType.TEXT, text: 'there was an error', agent: agentType.IA })
+    )
   }
   await scrollPageToBottom()
 })

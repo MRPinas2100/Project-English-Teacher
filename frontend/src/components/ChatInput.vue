@@ -7,8 +7,14 @@
       placeholder="Type new message ..."
     />
     <button
-      class="flex items-center justify-center rounded-full size-10 bg-transparent cursor-pointer"
+      :class="[
+        'flex items-center justify-center rounded-full size-10 cursor-pointer hover:bg-input active:bg-input',
+        isRecording ? 'bg-red-500/20 ring-2 ring-red-500 animate-pulse' : 'bg-transparent'
+      ]"
       type="button"
+      @click="toggleRecording"
+      :aria-pressed="isRecording"
+      :title="isRecording ? 'Detener grabación' : 'Iniciar grabación'"
     >
       <MicIcon class="w-6 h-6 text-text" />
     </button>
@@ -22,16 +28,101 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 import MicIcon from './icons/MicIcon.vue'
 import SendIcon from './icons/SendIcon.vue'
 
 const userMessage = ref('')
-const emit = defineEmits(['send'])
+const isRecording = ref(false)
+const mediaStream = ref(null)
+let mediaRecorder = null
+let chunks = []
+
+const emit = defineEmits(['text', 'audio'])
 
 const sendMessage = () => {
   if (!userMessage.value.trim()) return
-  emit('send', userMessage.value)
+  emit('text', userMessage.value)
   userMessage.value = ''
 }
+
+const pickRecorderOptions = () => {
+  const opts = {}
+  if (window.MediaRecorder?.isTypeSupported?.('audio/webm;codecs=opus')) {
+    opts.mimeType = 'audio/webm;codecs=opus'
+  } else if (window.MediaRecorder?.isTypeSupported?.('audio/webm')) {
+    opts.mimeType = 'audio/webm'
+  } else if (window.MediaRecorder?.isTypeSupported?.('audio/ogg;codecs=opus')) {
+    opts.mimeType = 'audio/ogg;codecs=opus'
+  }
+  return opts
+}
+
+const startRecording = async () => {
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      console.error('getUserMedia is not available .')
+      return
+    }
+
+    // Pide micrófono (puedes ajustar flags de audio)
+    mediaStream.value = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        channelCount: 1,
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    })
+
+    mediaRecorder = new MediaRecorder(mediaStream.value, pickRecorderOptions())
+    chunks = []
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) chunks.push(e.data)
+    }
+
+    mediaRecorder.onstop = () => {
+      // construye el Blob final con el tipo elegido (o el que reporte el recorder)
+      const mime = mediaRecorder?.mimeType || 'audio/webm'
+      const blob = new Blob(chunks, { type: mime })
+      console.log('🎙️ Audio capturado:', blob, 'tamaño:', blob.size)
+
+      const audioURL = URL.createObjectURL(blob)
+      const audio = new Audio(audioURL)
+      audio.play() // 🎧 Reproducción inmediata
+
+      emit('audio', blob)
+    }
+
+    mediaRecorder.start() // puedes pasar timeslice (ms) si quieres ondataavailable por intervalos
+    isRecording.value = true
+  } catch (err) {
+    console.error('No se pudo iniciar la grabación:', err)
+    stopRecording() // limpieza defensiva
+  }
+}
+
+const stopRecording = () => {
+  try {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop()
+    }
+  } catch (e) {
+    // ignora errores al parar si ya está inactivo
+  }
+
+  if (mediaStream.value) {
+    mediaStream.value.getTracks().forEach((t) => t.stop())
+    mediaStream.value = null
+  }
+  isRecording.value = false
+}
+
+const toggleRecording = () => {
+  if (isRecording.value) stopRecording()
+  else startRecording()
+}
+
+onBeforeUnmount(stopRecording)
 </script>

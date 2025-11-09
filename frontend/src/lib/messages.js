@@ -1,13 +1,32 @@
+import { messageType } from '../consts/messageType'
 import { makeDatetime } from './datetime'
 
-export const messagesFactory = ({ text, agent }) => {
-  const message = {
+export const messagesFactory = ({ agent, type, text = null, blob = null }) => {
+  const base = {
     id: window.crypto.randomUUID(),
+    type,
     sender: agent,
-    text,
     status: 'ok',
     time: makeDatetime()
   }
 
-  return message
+  if (type === messageType.TEXT) {
+    return {
+      ...base,
+      text
+    }
+  }
+
+  if (type === messageType.AUDIO) {
+    const src = URL.createObjectURL(blob)
+    return {
+      ...base,
+      audio: {
+        src,
+        mimeType: blob.type
+      }
+    }
+  }
+
+  return base
 }

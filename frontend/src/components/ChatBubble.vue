@@ -21,9 +21,11 @@
             is_IA_Sender ? 'rounded-br-xl bg-bubble-ai' : 'rounded-bl-xl bg-bubble-user'
           ]"
         >
-          <p>
+          <p v-if="is_type_text">
             {{ text }}
           </p>
+
+          <ChatAudioBubble v-else />
         </div>
         <span
           :class="[
@@ -51,24 +53,18 @@
 </template>
 
 <script setup>
+import ChatAudioBubble from './ChatAudioBubble.vue'
 import { agentType } from '../consts/agentConsts'
 
 const props = defineProps({
   message: {
     type: Object,
-    required: false,
-    default: () => ({
-      id: '',
-      sender: '',
-      text: '',
-      ts: null,
-      status: '',
-      time: ''
-    })
+    required: true
   }
 })
 
 const { message } = props
-const { sender, text, time } = message
+const { type, sender, text, time } = message
 const is_IA_Sender = sender === agentType.IA
+const is_type_text = type === 'text'
 </script>
